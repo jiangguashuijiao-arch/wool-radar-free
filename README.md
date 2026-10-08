@@ -24,3 +24,16 @@
 python -m unittest discover -s tests -v
 python scan.py --fixture tests/sample.json --dry-run
 ```
+
+## 奶茶咖啡 0元/0.01元福利雷达
+
+独立工作流：[奶茶咖啡免费抢券雷达](.github/workflows/drinks.yml)。计划北京时间每天 07:17、09:17、10:37、11:17、13:17、16:17、20:17 运行，GitHub 的定时执行可能延迟；不保证恰好赶上整点开抢。
+
+- 自动检索 [线报酷公开 JSON API](https://new.ixbk.net/gonggao/1138711.html) 与 Google News 公共 RSS，尝试发现“免单券、免费一杯、0元、0.01元、限量抢券”等活动。
+- reports/drinks-latest.md 为扫描报告，data/drinks-seen.json 用于去重。报道活动期的少量活动配置在 data/drink-campaigns.json；**仅说明报道日期，没有核实剩余名额**。
+- 只有新线报才创建独立的“奶茶咖啡免费抢”GitHub Issue（首次运行建基线，不批量推送旧消息）。某些活动会要求会员、粉丝群、抽奖或特定门店。
+- 过滤已知过期日期、明显充值、先付款、买一赠一和疑似拉新推广内容；无法可靠识别所有活动限制或最新库存。标题含免费也**绝不表示你已经中奖或可随时领取**。
+- 本项目只监控公开资讯，不模拟抢券、不调用用户账号接口、不绕过验证码、不自动下单。实付价格和奖券能否使用都应以品牌 APP/小程序里的活动页为准。
+
+手动执行：GitHub Actions → 奶茶咖啡免费抢券雷达 → Run workflow。
+本地离线检查：python -m unittest discover -s tests -v。
