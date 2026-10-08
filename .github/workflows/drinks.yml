@@ -1,0 +1,49 @@
+name: 奶茶咖啡免费抢券雷达
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "drinks.py"
+      - "data/drink-campaigns.json"
+      - "tests/test_drinks.py"
+      - ".github/workflows/drinks.yml"
+  schedule:
+    # 北京时间每天 07:17、09:17、11:17、13:17、16:17、20:17，以及10:37
+    - cron: "17 23,1,3,5,8,12 * * *"
+    - cron: "37 2 * * *"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: drinks-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 运行自动化测试
+        run: python -m unittest discover -s tests -v
+      - name: 收集公开奶茶咖啡优惠线报
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python drinks.py
+      - name: 更新扫描报告和去重记录
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/drinks-latest.md data/drinks-seen.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update beverage coupon feed [skip ci]"
+            git push
+          fi
