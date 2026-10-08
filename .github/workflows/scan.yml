@@ -1,0 +1,47 @@
+name: 赛博捡垃圾扫描
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scan.py"
+      - "tests/**"
+      - ".github/workflows/scan.yml"
+  schedule:
+    # 北京时间 09:23、12:23、15:23、18:23、21:23
+    - cron: "23 1,4,7,10,13 * * *"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: wool-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 离线单元测试
+        run: python -m unittest discover -s tests -v
+      - name: 抓取公开线报、过滤、去重
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scan.py
+      - name: 持久化去重状态与新报告
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/seen.json reports/latest.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: persist scanned wool opportunities [skip ci]"
+            git push
+          fi
