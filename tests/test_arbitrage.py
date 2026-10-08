@@ -19,7 +19,7 @@ class ArbitrageTests(unittest.TestCase):
 
     def test_only_safe_deal_url(self):
         self.assertIsNone(arbitrage.safe_link("https://smzdm.com.evil.test/p/11"))
-        self.assertIsNone(arbitrage.safe_link("http://www.smzdm.com/p/11"))
+        self.assertEqual(arbitrage.safe_link("http://www.smzdm.com/p/11"), "https://www.smzdm.com/p/11")
         self.assertEqual(arbitrage.safe_link("https://www.smzdm.com/p/11"), "https://www.smzdm.com/p/11")
 
     def test_net_profit_conservative(self):
