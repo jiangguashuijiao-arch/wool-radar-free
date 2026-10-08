@@ -1,0 +1,43 @@
+name: 什么值得买闲鱼套利雷达
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "arbitrage.py"
+      - "tests/test_arbitrage.py"
+      - "tests/fixtures-arbitrage.json"
+      - "data/resale-benchmarks.json"
+      - ".github/workflows/arbitrage.yml"
+  schedule:
+    # 北京时间 08:46、12:46、16:46、20:46，可能延迟
+    - cron: "46 0,4,8,12 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: arbitrage-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 单元测试
+        run: python -m unittest discover -s tests -v
+      - name: 离线样例扫描
+        run: python arbitrage.py --fixture tests/fixtures-arbitrage.json --dry-run
+      - name: 读取好价与计算套利
+        env:
+          SMZDM_APP_KEY: ${{ secrets.SMZDM_APP_KEY }}
+          SMZDM_APP_SECRET: ${{ secrets.SMZDM_APP_SECRET }}
+        run: python arbitrage.py
+      - name: 提交套利雷达报告
+        run: bash -n scripts/publish-report.sh && bash scripts/publish-report.sh reports/arbitrage-latest.md
