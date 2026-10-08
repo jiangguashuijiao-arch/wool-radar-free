@@ -37,3 +37,58 @@ python scan.py --fixture tests/sample.json --dry-run
 
 手动执行：GitHub Actions → 奶茶咖啡免费抢券雷达 → Run workflow。
 本地离线检查：python -m unittest discover -s tests -v。
+
+
+## 什么值得买 → 闲鱼实物转卖套利雷达
+
+独立模块：arbitrage.py；工作流：.github/workflows/arbitrage.yml；报告：reports/arbitrage-latest.md。
+计划北京时间每日 08:46、12:46、16:46、20:46 检查（GitHub 定时触发可能延迟）。
+
+**重要：不是自动买卖。** 系统只收集什么值得买好价、初步识别商品品类和文字里的参考实付价，再与由你人工录入的闲鱼「近期同款同成色实际成交价」比对。
+发布闲鱼商品必须在你拿到货并验货后由你自己发布，不会自动创建虚假现货或抓取买卖双方隐私数据。
+
+### 官方数据源（推荐）
+
+什么值得买 [开发者开放 API](https://openapi.zhidemai.com/pages/) 需申请 AppKey、AppSecret 与好价接口授权，可能有免费的测试配额，具体以开发者平台审批为准。
+获得授权后，在本仓库的 **Settings → Secrets and variables → Actions → New repository secret** 里创建：
+- SMZDM_APP_KEY
+- SMZDM_APP_SECRET
+
+不要将任何密钥放入仓库文件、Issue 或评论。没申请成功前程序会尝试官方公开 RSS（feed.smzdm.com 与 fx.smzdm.com/feed）；公开 RSS 也可能返回 HTTP 403 或过期，报告会如实写出数据源错误而不会冒充成功找到报价。不要用抢券模拟器、网站 Cookie 或旁路反爬代替正规授权。
+
+### 闲鱼成交价证据（手工）
+
+新建或编辑 data/resale-benchmarks.json。默认是空列表（表示**没有经验证的闲鱼成交价**），不能由程序凭空生成利润。录入示意（**纯虚构样例，不是真实行情**）：
+
+~~~json
+[
+  {
+    "sku_terms": ["SN580", "1TB"],
+    "condition": "new_sealed",
+    "checked_on": "2026-10-09",
+    "confirmed_sale_price": 390,
+    "sale_evidence_url": "https://www.goofish.com/",
+    "platform_fee_rate": 0.016,
+    "inbound_shipping": 0,
+    "outbound_shipping": 10,
+    "risk_reserve": 15
+  }
+]
+~~~
+
+请替换成**自己核实的实际成交订单依据**，而不是普通挂价或卖家口述。要确保同品牌、同型号、同容量、同销售包装、同保修状态，不要拿不同容量价格对比。录入时更新 checked_on 日期及真实依据链接。若无法提供真实成交依据，则保持空列表。
+报告仅在试算净利≥30元且净收益率≥18%时列入可复核候选；这是筛选阈值，不是利润承诺。
+闲鱼交易手续费按个人/鱼小铺及订单不同可能改变；默认用较保守的1.6%试算，并需核实账号实际费率与退货成本。
+
+### 禁止误把低价当套利
+
+排除：国补/省补、以旧换新、捆绑购买、二手拆机、定金预售、只对首单/指定会员开放的价；
+手机、虚拟权益、口令券、存储卡和不明来源商品未列入首批扫描。
+不确保发布即成交。不能在没有实物时描述为“全新现货”或“个人闲置”。
+
+离线检查：
+
+~~~bash
+python -m unittest discover -s tests -v
+python arbitrage.py --fixture tests/fixtures-arbitrage.json --dry-run
+~~~
