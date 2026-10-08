@@ -19,6 +19,10 @@ class DrinksTests(unittest.TestCase):
         item = dict(title="千问新人福利LEUc1I免费喝奶茶复制链接", content="", id="2", url="https://news.google.com/rss/a", source="RSS")
         self.assertIsNone(drinks.classify(item, date(2026, 10, 9)))
 
+    def test_packaged_yogurt_discount_is_not_free_drink(self):
+        item = dict(title="简醇酸奶10元4杯130克 领200-20黑五券", content="免费领优惠券", id="grocery", url="https://new.ixbk.net/kuan/test", source="线报酷")
+        self.assertIsNone(drinks.classify(item, date(2026, 10, 9)))
+
     def test_regular_discount_excluded(self):
         item = dict(title="古茗9折优惠", content="", id="1", url="https://new.ixbk.net/a", source="test")
         self.assertIsNone(drinks.classify(item, date(2026, 10, 9)))
