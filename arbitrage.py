@@ -65,12 +65,12 @@ def safe_link(raw):
     if not isinstance(raw, str):
         return None
     parsed = urllib.parse.urlparse(raw.strip())
-    if parsed.scheme != "https" or parsed.username or parsed.password:
+    if parsed.scheme not in ("https", "http") or parsed.username or parsed.password:
         return None
     if parsed.hostname not in ("www.smzdm.com", "m.smzdm.com", "post.smzdm.com",
                                "faxian.smzdm.com", "news.smzdm.com", "go.smzdm.com"):
         return None
-    return raw.strip()
+    return urllib.parse.urlunparse(parsed._replace(scheme="https"))
 
 
 def extract_price(title):
@@ -87,14 +87,17 @@ def extract_price(title):
     return None
 
 
-def normalize(title, url, source, pubdate=None):
+def normalize(title, url, source, pubdate=None, price_override=None):
     title, url = scrape_text(title)[:180], safe_link(url)
     if not title or not url or category(title) is None:
         return None
     if any(w in title for w in EXCLUSIONS):
         return None
-    price = extract_price(title)
-    if price is None:
+    try:
+        price = round(float(price_override), 2) if price_override is not None else extract_price(title)
+    except (ValueError, TypeError):
+        return None
+    if price is None or not (10 <= price <= 5000):
         return None
     if pubdate is not None:
         now = datetime.now(CHINA)
@@ -150,17 +153,17 @@ def api_items(payload):
                         ts = datetime.fromisoformat(str(published).replace(" ", "T")).replace(tzinfo=CHINA)
                     except ValueError:
                         pass
-                o = normalize(str(title), str(url), "值得买官方好价 API", ts)
+                subtitle = scrape_text(x.get("article_subtitle") or "")
+                if any(w in (str(title) + " " + subtitle) for w in EXCLUSIONS):
+                    continue
+                numeric = x.get("digital_price")
+                try:
+                    verified_price = float(numeric) if numeric not in (None, "") else extract_price(subtitle)
+                except (ValueError, TypeError):
+                    verified_price = None
+                o = normalize(str(title), str(url), "值得买官方好价 API", ts,
+                              price_override=verified_price)
                 if o:
-                    # API 的 digital_price 为折后单价；当存在时优先要求与标题相符。
-                    digital_price = x.get("digital_price")
-                    if digital_price not in (None, ""):
-                        try:
-                            p = float(digital_price)
-                            if 10 <= p <= 5000:
-                                o["purchase_price"] = round(p, 2)
-                        except (ValueError, TypeError):
-                            pass
                     hits.append(o)
             else:
                 for value in x.values():
