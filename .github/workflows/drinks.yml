@@ -45,5 +45,14 @@ jobs:
           git add reports/drinks-latest.md data/drinks-seen.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: update beverage coupon feed [skip ci]"
-            git push
+            # 其他扫描器可能同时写入同一仓库，先 rebase，再重试推送。
+            for attempt in 1 2 3 4; do
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                exit 0
+              fi
+              git rebase --abort || true
+              sleep $((attempt * 3))
+            done
+            echo "Push failed after retries" >&2
+            exit 1
           fi
