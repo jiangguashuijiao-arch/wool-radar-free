@@ -29,7 +29,6 @@ SOURCES = {
     "线报酷赚客吧": "/plus/json/push_16.json",
     "线报酷新赚吧": "/plus/json/push_18.json",
     "线报酷微博": "/plus/json/push_10.json",
-    "线报酷猜你喜欢": "/plus/json/rank/guesslike.json",  # 官方公开 JSON，至少300秒间隔
 }
 SEARCHES = ("奶茶 免单 免费喝 when:7d", "咖啡 免费 0元 免单 when:7d")
 STATE = Path("data/drinks-seen.json")
