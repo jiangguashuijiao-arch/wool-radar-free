@@ -65,6 +65,27 @@ class ArbitrageTests(unittest.TestCase):
         r = arbitrage.rss_items(xml, "RSS", now=now)
         self.assertEqual(len(r), 1)
 
+    def test_api_prices_without_title_amount(self):
+        sample = {"data": {"list": [{
+            "article_title": "西部数据 WD SN580 1TB SSD 固态硬盘",
+            "article_subtitle": "到手价格 299元",
+            "digital_price": "299",
+            "article_url": "http://www.smzdm.com/p/99999"
+        }]}}
+        result = arbitrage.api_items(sample)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["purchase_price"], 299)
+        self.assertTrue(result[0]["url"].startswith("https://"))
+
+    def test_api_excludes_subtitle_promo(self):
+        sample = {"data": {"list": [{
+            "article_title": "西部数据 WD SN580 1TB SSD 固态硬盘",
+            "article_subtitle": "国补后到手299元",
+            "digital_price": "299",
+            "article_url": "https://www.smzdm.com/p/99999"
+        }]}}
+        self.assertEqual(arbitrage.api_items(sample), [])
+
     def test_api_items(self):
         sample = {"data":{"list":[{"article_title":"WD SN580 1TB SSD 到手价299元",
                  "article_url":"https://www.smzdm.com/p/3", "digital_price":"299"}]}}
