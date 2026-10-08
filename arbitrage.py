@@ -155,7 +155,7 @@ def api_items(payload):
                         pass
                 subtitle = scrape_text(x.get("article_subtitle") or "")
                 if any(w in (str(title) + " " + subtitle) for w in EXCLUSIONS):
-                    continue
+                    return
                 numeric = x.get("digital_price")
                 try:
                     verified_price = float(numeric) if numeric not in (None, "") else extract_price(subtitle)
