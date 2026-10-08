@@ -33,20 +33,4 @@ jobs:
       - name: 只读读取官方规则并更新报告
         run: python cash_audit.py
       - name: 保存资格报告
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/cash-eligibility.md
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: audit official cash rules [skip ci]"
-            # 其他扫描器可能同时写入同一仓库，先 rebase，再重试推送。
-            for attempt in 1 2 3 4; do
-              if git pull --rebase origin main && git push origin HEAD:main; then
-                exit 0
-              fi
-              git rebase --abort || true
-              sleep $((attempt * 3))
-            done
-            echo "Push failed after retries" >&2
-            exit 1
-          fi
+        run: bash -n scripts/publish-report.sh && bash scripts/publish-report.sh reports/cash-eligibility.md
