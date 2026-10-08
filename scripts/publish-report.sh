@@ -2,13 +2,13 @@
 # Safely publish generated reports when multiple independent Actions share main.
 set -euo pipefail
 
-if [[ "$#" -ne 2 ]]; then
-  echo "Usage: bash scripts/publish-report.sh REPORT_PATH STATE_PATH" >&2
+if [[ "$#" -lt 1 || "$#" -gt 2 ]]; then
+  echo "Usage: bash scripts/publish-report.sh REPORT_PATH [STATE_PATH]" >&2
   exit 2
 fi
 report="$1"
-state="$2"
-for path in "$report" "$state"; do
+state="${2:-}"
+for path in "$report" ${state:+"$state"}; do
   if [[ ! -f "$path" ]]; then
     echo "Missing generated file: $path" >&2
     exit 2
@@ -18,7 +18,7 @@ done
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 cp "$report" "$tmpdir/report.md"
-cp "$state" "$tmpdir/seen.json"
+if [[ -n "$state" ]]; then cp "$state" "$tmpdir/seen.json"; fi
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -29,10 +29,12 @@ for attempt in 1 2 3 4 5; do
   # This avoids cherry-pick/rebase text conflicts between concurrent scanners.
   git fetch origin main
   git reset --hard origin/main
-  mkdir -p "$(dirname "$report")" "$(dirname "$state")"
+  mkdir -p "$(dirname "$report")"
+  if [[ -n "$state" ]]; then mkdir -p "$(dirname "$state")"; fi
   cp "$tmpdir/report.md" "$report"
 
   # Combine remote and this run's seen IDs instead of losing entries.
+  if [[ -n "$state" ]]; then
   python3 - "$state" "$tmpdir/seen.json" <<'PY'
 import json
 import sys
@@ -49,8 +51,10 @@ items = list(dict.fromkeys(load(destination) + load(generated)))[-4000:]
 destination.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(f"Persisting {len(items)} seen IDs")
 PY
+  fi
 
-  git add -- "$report" "$state"
+  git add -- "$report"
+  if [[ -n "$state" ]]; then git add -- "$state"; fi
   if git diff --cached --quiet; then
     echo "No report changes to save"
     exit 0
