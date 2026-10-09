@@ -320,6 +320,8 @@ def report(offers, benchmarks, errors):
     if errors:
         header.extend(["", "## 数据源状态", *["- " + markdown_escape(e) for e in errors]])
     header.extend(["", "> 间接线报数据不等于什么值得买官方报价；没有官方 API 密钥时不能称为完整扫描什么值得买。", ""])
+    import xianyu_market
+    header.extend([""] + xianyu_market.markdown_section())
     header += ["", "## 核价要求", "",
                "- 报价是否真能复现（会员券、地区补贴、限购、运费、订单限额）；商品必须为相同品牌、型号、规格、全新/二手状态。",
                "- 闲鱼要看**已成交**依据；挂价不是成交价。手填数据在 data/resale-benchmarks.json，默认空白。",
