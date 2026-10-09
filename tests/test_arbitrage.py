@@ -45,6 +45,36 @@ class ArbitrageTests(unittest.TestCase):
         self.assertIsNone(arbitrage.match_benchmark(offer, [{**b, "checked_on": "2024-01-01"}]))
         self.assertIsNone(arbitrage.match_benchmark(offer, [{**b, "sku_terms": ["SN770", "1TB"]}]))
 
+    def test_manual_tools_now_scanned(self):
+        a = arbitrage.normalize(
+            "米良品 家用多功能精密螺丝刀套装 115合一 实付39元",
+            "https://www.smzdm.com/p/183599638/", "样例")
+        self.assertIsNotNone(a)
+        self.assertEqual(a["category"], "手动维修工具")
+
+    def test_priority_of_low_cost_manual_tools(self):
+        rows = [
+            {"title": "贵SSD", "category": "SSD固态硬盘", "purchase_price": 900},
+            {"title": "工具", "category": "手动维修工具", "purchase_price": 39},
+            {"title": "鼠标", "category": "外设", "purchase_price": 85},
+        ]
+        self.assertEqual(sorted(rows, key=arbitrage.candidate_priority)[0]["title"], "工具")
+
+    def test_minimum_sale_is_not_market_price(self):
+        minimum = arbitrage.trial_minimum_sale_price(39)
+        self.assertEqual(minimum, 88.42)
+        doc, _ = arbitrage.report([
+            {"title":"工具套装 到手39元", "id":"abc", "url":"https://www.smzdm.com/p/99",
+             "category":"手动维修工具","purchase_price":39,
+             "source":"测试输入"}], [], [])
+        self.assertIn("须卖到至少¥88.42", doc)
+        self.assertIn("不是闲鱼实际行情", doc)
+
+    def test_low_fee_not_sole_arbitrage_evidence(self):
+        self.assertGreater(arbitrage.trial_minimum_sale_price(29.9), 79)
+        with self.assertRaises(ValueError):
+            arbitrage.trial_minimum_sale_price(39, fee_rate=1)
+
     def test_no_benchmark_no_false_profit(self):
         offer = arbitrage.normalize("致态 1TB SSD 到手价299元", "https://www.smzdm.com/p/1234", "测试")
         doc, count = arbitrage.report([offer], [], [])
