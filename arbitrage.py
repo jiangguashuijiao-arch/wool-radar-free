@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -21,10 +22,12 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import scan
 from scan import clean, markdown_escape
 
 CHINA = ZoneInfo("Asia/Shanghai")
-RSS = ("https://feed.smzdm.com", "https://fx.smzdm.com/feed")
+RSS = ("https://feed.smzdm.com", "https://fx.smzdm.com/feed", "https://feed.feedsky.com/smzdm")
+PUBLIC_FEEDS = (("线报酷最新", "/plus/json/push.json"), ("线报酷赚客吧", "/plus/json/push_16.json"), ("线报酷新赚吧", "/plus/json/push_18.json"))
 API = "https://openapi.smzdm.com/v1/youhui/list/show"
 REPORT = Path("reports/arbitrage-latest.md")
 WATCHLIST = Path("data/resale-benchmarks.json")
@@ -68,7 +71,8 @@ def safe_link(raw):
     if parsed.scheme not in ("https", "http") or parsed.username or parsed.password:
         return None
     if parsed.hostname not in ("www.smzdm.com", "m.smzdm.com", "post.smzdm.com",
-                               "faxian.smzdm.com", "news.smzdm.com", "go.smzdm.com"):
+                               "faxian.smzdm.com", "news.smzdm.com", "go.smzdm.com",
+                               "new.ixbk.net", "new.xianbao.fun"):
         return None
     return urllib.parse.urlunparse(parsed._replace(scheme="https"))
 
@@ -143,10 +147,10 @@ def api_items(payload):
             for obj in x:
                 visit(obj)
         elif isinstance(x, dict):
-            title = x.get("article_title") or x.get("post_title")
+            title = x.get("article_title") or x.get("post_title") or x.get("title")
             url = x.get("article_url") or x.get("post_url")
             if title and url:
-                published = x.get("article_pubdate") or x.get("post_time")
+                published = x.get("article_pubdate") or x.get("post_time") or x.get("pubdate")
                 ts = None
                 if published:
                     try:
@@ -191,7 +195,7 @@ def read_offers(fixture=None):
     key, secret = os.getenv("SMZDM_APP_KEY", ""), os.getenv("SMZDM_APP_SECRET", "")
     if key and secret:
         params = signed_params({"app_key": key,
-                                "timestamp": int(datetime.now().timestamp())}, secret)
+                                "timestamp": int(datetime.now().timestamp()), "channel_ids": "1,2"}, secret)
         url = API + "?" + urllib.parse.urlencode(params)
         try:
             payload = json.loads(fetch(url, "application/json"))
@@ -213,6 +217,22 @@ def read_offers(fixture=None):
                 offers[item["id"]] = item
         except Exception as exc:
             errors.append(source + " 无法读取：" + type(exc).__name__)
+    # 免费备用源：公开线报是第三方转述，并非什么值得买直连。
+    # 不可把公开标题价视为可复现的订单价；无发布日期时也不能声称当日实时价。
+    for i, (source, path) in enumerate(PUBLIC_FEEDS):
+        if i:
+            time.sleep(6)
+        try:
+            items = scan.normalize(scan.fetch_json(path), source)
+            accepted = 0
+            for tip in items:
+                item = normalize(tip["title"], tip["url"], source + "（间接线报，非值得买官方）")
+                if item:
+                    offers[item["id"]] = item
+                    accepted += 1
+            print(f"{source}: 找到 {accepted} 条标准化好价待核实线索")
+        except Exception as exc:
+            errors.append(source + " 读取失败：" + type(exc).__name__)
     return list(offers.values()), errors
 
 
@@ -278,7 +298,7 @@ def report(offers, benchmarks, errors):
                 validated.append((item, benchmark, result))
         else:
             candidates.append(item)
-    header = ["# 什么值得买 → 闲鱼套利雷达", "", f"最近检查（北京时间）：{now}", "",
+    header = ["# 低价信息 → 闲鱼套利雷达（优先什么值得买）", "", f"最近检查（北京时间）：{now}", "",
               f"公开报价候选：{len(offers)}；具备人工成交价基准且达到试算阈值：{len(validated)}。", "",
               "> **注意**：下面只是选品线索，购买价和闲鱼成交价均可能变化；无真实成交依据不可称为套利机会。",
               "> 不自动下单、不自动在闲鱼发布、不绕过登录/风控。", "",
@@ -293,11 +313,12 @@ def report(offers, benchmarks, errors):
         header.append("暂时没有同时满足：同SKU近期成交价证据、净利润≥¥30、净ROI≥18%的项目。")
     header.extend(["", "## 待核实闲鱼价格的好价线索", ""])
     for o in candidates[:35]:
-        header.append(f"- [{markdown_escape(o['title'])}]({o['url']}) · {o['category']} · 标题价约¥{o['purchase_price']:.2f} · **待核实到手价和实际成交价**")
+        header.append(f"- [{markdown_escape(o['title'])}]({o['url']}) · {o['category']} · {markdown_escape(o['source'])} · 标题价约¥{o['purchase_price']:.2f} · **待核实活动时间、真实到手价和实际成交价**")
     if not candidates:
         header.append("没有可用且符合初筛的近期报价。")
     if errors:
         header.extend(["", "## 数据源状态", *["- " + markdown_escape(e) for e in errors]])
+    header.extend(["", "> 间接线报数据不等于什么值得买官方报价；没有官方 API 密钥时不能称为完整扫描什么值得买。", ""])
     header += ["", "## 核价要求", "",
                "- 报价是否真能复现（会员券、地区补贴、限购、运费、订单限额）；商品必须为相同品牌、型号、规格、全新/二手状态。",
                "- 闲鱼要看**已成交**依据；挂价不是成交价。手填数据在 data/resale-benchmarks.json，默认空白。",
