@@ -54,7 +54,7 @@ python scan.py --fixture tests/sample.json --dry-run
 - SMZDM_APP_KEY
 - SMZDM_APP_SECRET
 
-不要将任何密钥放入仓库文件、Issue 或评论。没申请成功前程序会尝试官方公开 RSS（feed.smzdm.com 与 fx.smzdm.com/feed）；公开 RSS 也可能返回 HTTP 403 或过期，报告会如实写出数据源错误而不会冒充成功找到报价。不要用抢券模拟器、网站 Cookie 或旁路反爬代替正规授权。
+不要将任何密钥放入仓库文件、Issue 或评论。没申请成功前程序会先尝试官方公开 RSS（feed.smzdm.com、fx.smzdm.com/feed 与曾提供的 feed.feedsky.com/smzdm），同时读取线报酷的合法公开 JSON 信息流作为免费备用源。**线报酷是第三方转述，不等于什么值得买官方报价**；即使标题含金额，也要自己确认券后实际结算价、活动期限、购买资格和库存。RSS 若返回 HTTP 403/网络错误，报告会如实记录，不得视为“市场没有好价”。不使用登录 Cookie、模拟浏览器绕过限制或高频抓取。
 
 ### 闲鱼成交价证据（手工）
 
