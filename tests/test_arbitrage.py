@@ -86,6 +86,34 @@ class ArbitrageTests(unittest.TestCase):
         }]}}
         self.assertEqual(arbitrage.api_items(sample), [])
 
+    def test_free_public_tip_fallback(self):
+        from unittest.mock import patch
+        from urllib.error import URLError
+        payload = {"data": [{"title": "Lexar NM790 1TB SSD 到手价299元",
+                             "url": "/kuan/12345.html"},
+                            {"title": "购买会员后 SSD 99元",
+                             "url": "/kuan/23456.html"}]}
+        with patch.dict("os.environ", {"SMZDM_APP_KEY": "", "SMZDM_APP_SECRET": ""}), \
+             patch("arbitrage.fetch", side_effect=URLError("blocked")), \
+             patch("arbitrage.scan.fetch_json", return_value=payload), \
+             patch("arbitrage.time.sleep"):
+            offers, errors = arbitrage.read_offers()
+        self.assertEqual(len(offers), 1)
+        self.assertIn("非值得买官方", offers[0]["source"])
+        self.assertEqual(offers[0]["purchase_price"], 299.0)
+        self.assertGreaterEqual(len(errors), 3)
+
+    def test_authorized_api_search_rows(self):
+        sample = {"status": True, "data": {"rows": [{
+            "title": "Lexar NM790 1TB SSD 新品优惠",
+            "digital_price": "335",
+            "article_url": "https://www.smzdm.com/p/8888/",
+            "pubdate": datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y-%m-%d %H:%M:%S")
+        }]}}
+        found = arbitrage.api_items(sample)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["purchase_price"], 335)
+
     def test_api_items(self):
         sample = {"data":{"list":[{"article_title":"WD SN580 1TB SSD 到手价299元",
                  "article_url":"https://www.smzdm.com/p/3", "digital_price":"299"}]}}
