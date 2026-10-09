@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - "arbitrage.py"
+      - "xianyu_market.py"
+      - "tests/test_xianyu_market.py"
+      - "data/xianyu-listings.json"
       - "tests/test_arbitrage.py"
       - "tests/fixtures-arbitrage.json"
       - "data/resale-benchmarks.json"
@@ -34,6 +37,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: 离线样例扫描
         run: python arbitrage.py --fixture tests/fixtures-arbitrage.json --dry-run
+      - name: 本地闲鱼挂牌价核查（不联网）
+        run: python xianyu_market.py
       - name: 读取好价与计算套利
         env:
           SMZDM_APP_KEY: ${{ secrets.SMZDM_APP_KEY }}
