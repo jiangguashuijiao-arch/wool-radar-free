@@ -35,10 +35,15 @@ STATE = Path("data/arbitrage-seen.json")
 
 # 首批类别：体积小、SKU 相对标准化。手机、存储卡、虚拟商品等风险较大，不自动入围。
 CATEGORIES = {
+    # 新的小件方向：轻、体积小、尽可能无电池、完整规格易核对。
+    "手动维修工具": ("精密螺丝刀", "螺丝刀套装", "棘轮螺丝刀", "批头套装", "内六角",
+                   "六角扳手", "套筒套装", "套筒组套", "工具组套", "工具套装",
+                   "钢卷尺", "游标卡尺", "棘轮扳手", "工具钳"),
+    "小件收纳配件": ("工具收纳盒", "数据线收纳包", "电子配件收纳盒", "防潮盒", "收纳工具箱"),
     "SSD固态硬盘": ("SSD", "固态硬盘", "SN770", "SN580", "NM790", "T500"),
     "内存条": ("DDR4", "DDR5", "内存条", "笔记本内存", "台式机内存"),
     "外设": ("鼠标", "机械键盘", "键盘", "游戏手柄", "游戏耳机"),
-    "家用工具": ("电动螺丝刀", "锂电钻", "起子机", "棘轮扳手", "充电式电钻"),
+    "家用工具": ("电动螺丝刀", "锂电钻", "起子机", "充电式电钻"),
 }
 EXCLUSIONS = ("二手", "拆机", "维修", "扩容", "刷机", "故障", "官换", "无保",
               "以旧换新", "国补", "省补", "学生价", "专属", "邀请",
@@ -51,6 +56,30 @@ PRICE_PATTERNS = (
 )
 MIN_NET_PROFIT = 30.0
 MIN_NET_MARGIN = 0.18
+# 小件优先只是排序，而非盈利或正品保证；进货价暂偏向¥25–¥300。
+SMALL_BUY_MIN = 25.0
+SMALL_BUY_MAX = 300.0
+PRIORITY_CATEGORIES = {"手动维修工具", "小件收纳配件"}
+
+
+def trial_minimum_sale_price(buy, fee_rate=0.016, outbound_shipping=8.0,
+                             risk_reserve=10.0):
+    """达到净利30元和净ROI18%所需最低售价；不是闲鱼成交价。"""
+    import math
+    price = float(buy)
+    if price <= 0 or fee_rate < 0 or fee_rate >= 1:
+        raise ValueError("价格或费率不合理")
+    needed_profit = max(MIN_NET_PROFIT, price * MIN_NET_MARGIN)
+    return math.ceil((price + outbound_shipping + risk_reserve + needed_profit)
+                     / (1 - fee_rate) * 100 - 1e-9) / 100.0
+
+
+def candidate_priority(offer):
+    price = offer["purchase_price"]
+    preferred = offer["category"] in PRIORITY_CATEGORIES
+    affordable = SMALL_BUY_MIN <= price <= SMALL_BUY_MAX
+    return (not (preferred and affordable), not affordable,
+            abs(price - 90), offer["title"])
 
 
 def scrape_text(value):
@@ -313,8 +342,11 @@ def report(offers, benchmarks, errors):
     if not validated:
         header.append("暂时没有同时满足：同SKU近期成交价证据、净利润≥¥30、净ROI≥18%的项目。")
     header.extend(["", "## 待核实闲鱼价格的好价线索", ""])
+    candidates.sort(key=candidate_priority)
+    header += ["", "> 小件排序优先考虑¥25–¥300的手动工具/小型收纳配件。所需售价仅是达到净利/收益率阈值的数学门槛，不是闲鱼实际行情。", ""]
     for o in candidates[:35]:
-        header.append(f"- [{markdown_escape(o['title'])}]({o['url']}) · {o['category']} · {markdown_escape(o['source'])} · 标题价约¥{o['purchase_price']:.2f} · **待核实活动时间、真实到手价和实际成交价**")
+        minimum = trial_minimum_sale_price(o["purchase_price"])
+        header.append(f"- [{markdown_escape(o['title'])}]({o['url']}) · {o['category']} · {markdown_escape(o['source'])} · 标题价约¥{o['purchase_price']:.2f} · 若按手续费1.6%、运费8元、售后预留10元计算，**须卖到至少¥{minimum:.2f}才符合试单阈值**；仍须核实正常零售价、结算价和闲鱼真实成交证据。")
     if not candidates:
         header.append("没有可用且符合初筛的近期报价。")
     if errors:
