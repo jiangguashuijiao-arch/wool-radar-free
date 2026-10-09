@@ -92,3 +92,23 @@ python scan.py --fixture tests/sample.json --dry-run
 python -m unittest discover -s tests -v
 python arbitrage.py --fixture tests/fixtures-arbitrage.json --dry-run
 ~~~
+
+## 闲鱼挂牌价核价模块（离线；不采集账号或订单）
+
+核心代码：xianyu_market.py；手工证据数据：data/xianyu-listings.json；单元测试：tests/test_xianyu_market.py。
+报告输出在 reports/arbitrage-latest.md 中的「闲鱼挂牌价参考」部分。
+
+数据文件默认是空列表 []。如果你持有合规获得的挂牌信息，可以按以下字段逐条整理成 JSON 对象：
+- sku：准确品牌、完整型号、规格与保修一致。
+- asking_price：商品标示的人民币挂牌价；不等于成交价。
+- condition：new_sealed（全新未拆封）。
+- status：listed（仍在售）；已售状态不会被当作有真实成交金额。
+- observed_on：YYYY-MM-DD，观察日期，7天有效。
+- listing_url：公开、有效的 HTTPS 闲鱼商品链接。
+
+程序要求至少5个不同商品链接的近期有效样本才计算报价区间；剔除极端价格，并展示低四分位和挂牌价中位数。
+挂牌中位数仅供人工研究，绝不宣称实际成交价，也不会自行生成「已验证套利」。
+
+重要：本仓库为公开仓库，严禁提交 Cookie、账号信息、手机号、用户 ID、聊天、订单号或付款截图。
+不要复制虚构数据当作真实市场样本。本模块不请求闲鱼网站、不进行自动搜索、不绕过验证、不买卖商品。
+目前没有可核验的闲鱼真实成交金额；空样本会如实显示无数据。
