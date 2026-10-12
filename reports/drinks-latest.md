@@ -1,6 +1,6 @@
 # 免费奶茶咖啡雷达
 
-北京时间 2026-10-12 13:33，本次读取 70 条公开线索，发现 1 条新增候选。
+北京时间 2026-10-12 16:37，本次读取 51 条公开线索，发现 0 条新增候选。
 
 > **重要：所有活动均须以品牌官方活动页面为准；本程序不验证库存、中奖或具体门店资格。**
 > 仅自动搜集信息，不使用账号、不替你抢券、不自动下单。
@@ -13,7 +13,7 @@
 
 ## 自动发现的公开线索（都未核实能否领取）
 
-- **待核实限量抢券** [#霸王茶姬就崩了致歉#别致歉啦！！每个人送一张免单劵！！奶茶我以后只喝霸王茶姬！！！！ ​ - 手机新浪网](https://news.google.com/rss/articles/CBMiY0FVX3lxTE1DN084SDdQNm9hT0s0bjVNeFMydEFZNTg1aXByZ1RwZ3ZmZFJpcFFKTG50bDNYWUx4TWlhWGRlWGN5Z1UwNG5QdjJoSGRGek04bU5jWGViS01FWjBDRjhEQkxSSQ?oc=5) · Google News RSS · 文章日期：2026-10-12
+暂无符合过滤条件的新线索。
 
 ---
 数据源：线报酷许可的 JSON 列表接口与公开 Google News RSS；不访问线报详情页、不自动抢券。
