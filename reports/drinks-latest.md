@@ -1,6 +1,6 @@
 # 免费奶茶咖啡雷达
 
-北京时间 2026-10-14 16:46，本次读取 64 条公开线索，发现 0 条新增候选。
+北京时间 2026-10-14 20:53，本次读取 59 条公开线索，发现 1 条新增候选。
 
 > **重要：所有活动均须以品牌官方活动页面为准；本程序不验证库存、中奖或具体门店资格。**
 > 仅自动搜集信息，不使用账号、不替你抢券、不自动下单。
@@ -13,7 +13,7 @@
 
 ## 自动发现的公开线索（都未核实能否领取）
 
-暂无符合过滤条件的新线索。
+- **待核实限量抢券** [茶饮营销的「翻车现场」：免费奶茶如何变成员工噩梦 - https://haiwaiwai.com/](https://news.google.com/rss/articles/CBMiSEFVX3lxTE8yOU5kRndqTkV3SndyZ3FCX2NUYkN3WXRtUEM4Z01vNmpyUXpIWGxBcVh3b1A2ejJuNlRtNmtldk5fYmdOeFRWYw?oc=5) · Google News RSS · 文章日期：2026-10-14
 
 ---
 数据源：线报酷许可的 JSON 列表接口与公开 Google News RSS；不访问线报详情页、不自动抢券。
