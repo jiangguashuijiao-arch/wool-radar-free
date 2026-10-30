@@ -1,6 +1,6 @@
 # 低价信息 → 闲鱼套利雷达（优先什么值得买）
 
-最近检查（北京时间）：2026-10-30 13:24
+最近检查（北京时间）：2026-10-30 17:33
 
 公开报价候选：0；具备人工成交价基准且达到试算阈值：0。
 
@@ -23,6 +23,7 @@
 - https://feed.smzdm.com 无法读取：HTTPError
 - https://fx.smzdm.com/feed 无法读取：HTTPError
 - https://feed.feedsky.com/smzdm 无法读取：URLError
+- 线报酷赚客吧 读取失败：TimeoutError
 
 > 间接线报数据不等于什么值得买官方报价；没有官方 API 密钥时不能称为完整扫描什么值得买。
 
