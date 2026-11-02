@@ -1,17 +1,13 @@
 # 赛博捡垃圾雷达
 
-扫描于 2026-11-02 13:23 北京时间 · 本轮新增候选：8
+扫描于 2026-11-02 16:35 北京时间 · 本轮新增候选：4
 
 > 仅为公开社区线报，**不保证可以领取或提现**。金额取自标题，不代表实际到账。
 
-- [森马立领羽绒服 148.5元](https://new.ixbk.net/haodan/7359340.html) · 最新 · 标称 148.5 元
-- [森马轻松90绒子羽绒服 238元](https://new.ixbk.net/haodan/7359335.html) · 最新 · 标称 238 元
-- [贝亲宽口径ppsu奶瓶160ML 56元](https://new.ixbk.net/haodan/7359332.html) · 最新 · 标称 56 元
-- [泰国香水椰青2个 开椰器 10.3元](https://new.ixbk.net/haodan/7359326.html) · 最新 · 标称 10.3 元
-- [支付宝还款立减6元多](https://new.ixbk.net/zuankeba/7359195.html) · 赚客吧 · 标称 6 元
-- [广东农行5元数币](https://new.ixbk.net/zuankeba/7359183.html) · 赚客吧 · 标称 5 元
-- [移动1元话费](https://new.ixbk.net/zuankeba/7359010.html) · 赚客吧 · 标称 1 元
-- [建行大毛（100元以上）](https://new.ixbk.net/xinzuanba/7359158.html) · 新赚吧 · 标称 100 元
+- [碧浪除菌洗衣液3kg2去渍多规格家用正品实惠装 45.88元](https://new.ixbk.net/weibo/7360324.html) · 最新 · 标称 45.88 元
+- [金骏眉红茶茶叶特级2026新茶武夷山蜜香养胃自己喝送礼盒非遗实用 81元](https://new.ixbk.net/weibo/7360313.html) · 最新 · 标称 81 元
+- [派得鸭肉金枪鱼全价猫粮500g3袋 26.4元](https://new.ixbk.net/haodan/7360311.html) · 最新 · 标称 26.4 元
+- [可复美吨吨小水膜3盒+大水膜3盒套共30片 73元](https://new.ixbk.net/weibo/7360306.html) · 最新 · 标称 73 元
 
 ---
 仅使用官方开放的 JSON 列表 API；请求间隔至少6秒，不访问详情页、不做自动领奖。
