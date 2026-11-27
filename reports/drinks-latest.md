@@ -1,6 +1,6 @@
 # 免费奶茶咖啡雷达
 
-北京时间 2026-11-26 23:16，本次读取 94 条公开线索，发现 1 条新增候选。
+北京时间 2026-11-27 13:03，本次读取 103 条公开线索，发现 1 条新增候选。
 
 > **重要：所有活动均须以品牌官方活动页面为准；本程序不验证库存、中奖或具体门店资格。**
 > 仅自动搜集信息，不使用账号、不替你抢券、不自动下单。
@@ -11,7 +11,7 @@
 
 ## 自动发现的公开线索（都未核实能否领取）
 
-- **待核实限量抢券** [上海11月25日-11月29日奶茶免单/优惠活动更新 - 凤凰网](https://news.google.com/rss/articles/CBMiTEFVX3lxTFA5QXM4Tm90RnNkbGVlbmUzNmlYb2I1bXBMaW9VT3YydjU0Qkl2VzRucGlsRnJweVlYanBxdlpjR2szMHFSLXRWZFJWdnA?oc=5) · Google News RSS · 文章日期：2026-11-25
+- **待核实限量抢券** [邯郸11月25日-28日奶茶咖啡免单/特惠活动汇总 - 凤凰网](https://news.google.com/rss/articles/CBMiTEFVX3lxTE5UbEJpeTZ6N3pnb2VQaXJZdXdtSUptQXlvUGF2MS1oWk5GSFRKS2NTRHF1U3JNNDAwMUt5Tkp3QzRZRkN0T1JTbUdmcFk?oc=5) · Google News RSS · 文章日期：2026-11-25
 
 ---
 数据源：线报酷许可的 JSON 列表接口与公开 Google News RSS；不访问线报详情页、不自动抢券。
